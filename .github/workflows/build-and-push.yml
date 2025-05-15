@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        service: [adservice,checkoutservice] # Add your microservice directories here
+        service: [adservice,cartservice,checkoutservice] # Add your microservice directories here
 
     steps:
       - name: Checkout code
@@ -36,6 +36,14 @@ jobs:
           IMAGE_NAME=${{ matrix.service }}
           IMAGE_TAG=dev
           ECR_REPO="${{ env.ECR_REGISTRY }}/${IMAGE_NAME}"
+
+          DOCKER_CONTEXT="./src/$SERVICE"
+          DOCKERFILE_PATH="$DOCKER_CONTEXT/Dockerfile"
+
+          if [ "$SERVICE" = "cartservice" ]; then
+          DOCKER_CONTEXT="./src/$SERVICE/src"
+          DOCKERFILE_PATH="./src/$SERVICE/src/Dockerfile"
+          fi
 
           echo "Building $IMAGE_NAME..."
           docker build -t $IMAGE_NAME ./src/${IMAGE_NAME}
