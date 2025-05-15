@@ -1,0 +1,109 @@
+services:
+  adservice:
+    build:
+      context: ./adservice/.
+      dockerfile: Dockerfile
+    image: 255945442255.dkr.ecr.us-east-1.amazonaws.com/avengers/adservice:latest
+    env_file:
+      - 'variables.env'
+    environment:
+      - PORT=9550
+  cartservice:
+    build:
+      context: ./cartservice/src
+      dockerfile: Dockerfile
+    image: 255945442255.dkr.ecr.us-east-1.amazonaws.com/avengers/cartservice:latest
+    env_file:
+      - 'variables.env'
+    environment:
+      - PORT=7070
+  checkoutservice:
+    build:
+      context: ./checkoutservice/.
+      dockerfile: Dockerfile
+    image: 255945442255.dkr.ecr.us-east-1.amazonaws.com/avengers/checkoutservice:latest
+    env_file:
+      - 'variables.env'
+    environment:
+      - PORT=5050
+  currencyservice:
+    build:
+      context: ./currencyservice/.
+      dockerfile: Dockerfile
+    image: 255945442255.dkr.ecr.us-east-1.amazonaws.com/avengers/currencyservice:latest
+    env_file:
+      - 'variables.env'
+    environment:
+      - PORT=7000
+    ports:
+      - 50000:50000
+      - 60000:60000
+  emailservice:
+    build:
+      context: ./emailservice/.
+      dockerfile: Dockerfile
+    image: 255945442255.dkr.ecr.us-east-1.amazonaws.com/avengers/emailservice:latest
+    env_file:
+      - 'variables.env'
+    environment:
+      - PORT=5000
+  frontend:
+    build:
+      context: ./frontend/.
+      dockerfile: Dockerfile
+    image: 255945442255.dkr.ecr.us-east-1.amazonaws.com/avengers/frontend:latest
+    ports:
+      - 8080:80
+    env_file:
+      - 'variables.env'
+    environment:
+      - PORT=80
+  paymentservice:
+    build:
+      context: ./paymentservice/.
+      dockerfile: Dockerfile
+    image: 255945442255.dkr.ecr.us-east-1.amazonaws.com/avengers/paymentservice:latest
+    env_file:
+      - 'variables.env'
+    environment:
+      - PORT=50051
+  productcatalogservice:
+    build:
+      context: ./productcatalogservice/.
+      dockerfile: Dockerfile
+    image: 255945442255.dkr.ecr.us-east-1.amazonaws.com/avengers/productcatalogservice:latest
+    env_file:
+      - 'variables.env'
+    environment:
+      - PORT=3550
+  recommendationservice:
+    build:
+      context: ./recommendationservice/.
+      dockerfile: Dockerfile
+    image: 255945442255.dkr.ecr.us-east-1.amazonaws.com/avengers/recommendationservice:latest
+    env_file:
+      - 'variables.env'
+    environment:
+      - PORT=8080
+  shippingservice:
+    build:
+      context: ./shippingservice/.
+      dockerfile: Dockerfile
+    image: 255945442255.dkr.ecr.us-east-1.amazonaws.com/avengers/shippingservice:latest
+    env_file:
+      - 'variables.env'
+    environment:
+      - PORT=50051
+  loadgenerator:
+    build:
+      context: ./loadgenerator
+      dockerfile: Dockerfile
+    image: 255945442255.dkr.ecr.us-east-1.amazonaws.com/avengers/loadgenerator:latest
+  shoppingassistantservice:
+    build:
+      context: ./shoppingassistantservice
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8080
+
+  
