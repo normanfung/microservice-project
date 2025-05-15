@@ -33,23 +33,20 @@ jobs:
 
       - name: Build, Tag, and Push Docker image
         run: |
-          IMAGE_NAME=${{ matrix.service }}
+          SERVICE=${{ matrix.service }}
           IMAGE_TAG=dev
-          ECR_REPO="${{ env.ECR_REGISTRY }}/${IMAGE_NAME}"
+          ECR_REPO="${{ env.ECR_REGISTRY }}/${SERVICE}"
 
           DOCKER_CONTEXT="./src/$SERVICE"
           DOCKERFILE_PATH="$DOCKER_CONTEXT/Dockerfile"
 
           if [ "$SERVICE" = "cartservice" ]; then
-          DOCKER_CONTEXT="./src/$SERVICE/src"
-          DOCKERFILE_PATH="./src/$SERVICE/src/Dockerfile"
+            DOCKER_CONTEXT="./src/$SERVICE/src"
+            DOCKERFILE_PATH="./src/$SERVICE/src/Dockerfile"
           fi
 
-          echo "Building $IMAGE_NAME..."
-          docker build -t $IMAGE_NAME ./src/${IMAGE_NAME}
-
-          echo "Tagging $IMAGE_NAME..."
-          docker tag $IMAGE_NAME:latest $ECR_REPO:$IMAGE_TAG
+          echo "Building $SERVICE..."
+          docker build -t $ECR_REPO:$IMAGE_TAG -f $DOCKERFILE_PATH $DOCKER_CONTEXT
 
           echo "Pushing to ECR..."
           docker push $ECR_REPO:$IMAGE_TAG
