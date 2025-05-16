@@ -12,6 +12,14 @@ on:
           - dev
           - stage
           - main
+      full_build:
+        description: 'Build all services regardless of changes'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
@@ -19,7 +27,7 @@ env:
 
 jobs:
 
-  detect-changes:
+  detect-changes-in-service:
     runs-on: ubuntu-latest
     outputs:
       services_changed: ${{ steps.set-services.outputs.services_changed }}
@@ -78,25 +86,35 @@ jobs:
           import os
           import json
 
-          services = {
-              "adservice": "${{ steps.filter.outputs.adservice }}",
-              "cartservice": "${{ steps.filter.outputs.cartservice }}",
-              "checkoutservice": "${{ steps.filter.outputs.checkoutservice }}",
-              "currencyservice": "${{ steps.filter.outputs.currencyservice }}",
-              "emailservice": "${{ steps.filter.outputs.emailservice }}",
-              "frontend": "${{ steps.filter.outputs.frontend }}",
-              "loadgenerator": "${{ steps.filter.outputs.loadgenerator }}",
-              "paymentservice": "${{ steps.filter.outputs.paymentservice }}",
-              "productcatalogservice": "${{ steps.filter.outputs.productcatalogservice }}",
-              "recommendationservice": "${{ steps.filter.outputs.recommendationservice }}",
-              "shippingservice": "${{ steps.filter.outputs.shippingservice }}",
-              "shoppingassistantservice": "${{ steps.filter.outputs.shoppingassistantservice }}"
-          }
+          all_services = [
+              "adservice", "cartservice", "checkoutservice", "currencyservice", "emailservice",
+              "frontend", "loadgenerator", "paymentservice", "productcatalogservice",
+              "recommendationservice", "shippingservice", "shoppingassistantservice"
+          ]
 
-          changed = [svc for svc, flag in services.items() if flag.strip().lower() == "true"]
+          full_build = "${{ github.event.inputs.full_build }}".strip().lower() == "true"
+
+          if full_build:
+              changed = all_services
+          else:
+              services = {
+                  "adservice": "${{ steps.filter.outputs.adservice }}",
+                  "cartservice": "${{ steps.filter.outputs.cartservice }}",
+                  "checkoutservice": "${{ steps.filter.outputs.checkoutservice }}",
+                  "currencyservice": "${{ steps.filter.outputs.currencyservice }}",
+                  "emailservice": "${{ steps.filter.outputs.emailservice }}",
+                  "frontend": "${{ steps.filter.outputs.frontend }}",
+                  "loadgenerator": "${{ steps.filter.outputs.loadgenerator }}",
+                  "paymentservice": "${{ steps.filter.outputs.paymentservice }}",
+                  "productcatalogservice": "${{ steps.filter.outputs.productcatalogservice }}",
+                  "recommendationservice": "${{ steps.filter.outputs.recommendationservice }}",
+                  "shippingservice": "${{ steps.filter.outputs.shippingservice }}",
+                  "shoppingassistantservice": "${{ steps.filter.outputs.shoppingassistantservice }}"
+              }
+              changed = [svc for svc, flag in services.items() if flag.strip().lower() == "true"]
+
           changed_json = json.dumps(changed)
           print(f"Changed services: {changed_json}")
-
           with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
               print(f"services_changed={changed_json}", file=fh)
 
@@ -104,17 +122,17 @@ jobs:
   build-scan-and-push:
     name: Build and Push Docker Images
     runs-on: ubuntu-latest
-    needs: detect-changes
+    needs: detect-changes-in-service
     strategy:
         matrix:
-            service: ${{ fromJson(needs.detect-changes.outputs.services_changed) }}
+            service: ${{ fromJson(needs.detect-changes-in-service.outputs.services_changed) }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
       - name: Debug matrix input
-        run: echo "${{ fromJson(needs.detect-changes.outputs.services_changed) }}"
+        run: echo "${{ fromJson(needs.detect-changes-in-service.outputs.services_changed) }}"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
