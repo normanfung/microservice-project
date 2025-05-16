@@ -1,7 +1,17 @@
 name: Build and Push Microservices to ECR
 
 on:
-    workflow_dispatch:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - stage
+          - main
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
@@ -46,7 +56,8 @@ jobs:
       - name: Build, Tag, and Push Docker image
         run: |
           SERVICE=${{ matrix.service }}
-          IMAGE_TAG=dev
+          ENVIRONMENT=${{ github.event.inputs.environment }}
+          IMAGE_TAG=$ENVIRONMENT
           ECR_REPO="${{ env.ECR_REGISTRY }}/${SERVICE}"
 
           DOCKER_CONTEXT="./src/$SERVICE"
