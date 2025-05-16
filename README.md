@@ -104,11 +104,13 @@ Images are scanned before being pushed to ECR using [Trivy](https://github.com/a
 
 Images will be available in your ECR under:
 
-> Example output:
-> ```json
-> <AWS_ACC_ID>.dkr.ecr.us-east-1.amazonaws.com/adservice:latest
-> <AWS_ACC_ID>.dkr.ecr.us-east-1.amazonaws.com/cartservice:latest
-> ```
+<pre>
+Example:
+&lt;AWS_ACC_ID&gt;.dkr.ecr.us-east-1.amazonaws.com/adservice:latest
+&lt;AWS_ACC_ID&gt;.dkr.ecr.us-east-1.amazonaws.com/cartservice:latest
+.
+.
+</pre>
 
 ---
 
