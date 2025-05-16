@@ -110,6 +110,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Debug matrix input
+        run: echo "${{ fromJson(needs.detect-changes.outputs.services_changed) }}"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
