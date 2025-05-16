@@ -131,7 +131,7 @@ jobs:
         run: |
           SERVICE=${{ matrix.service }}
           ENVIRONMENT=${{ github.event.inputs.environment }}
-          IMAGE_TAG=$(echo "${{ github.sha }}" | cut -c1-7)
+          IMAGE_TAG=$(echo "${{ github.sha }}")
           ECR_REPO="${{ env.ECR_REGISTRY }}/${SERVICE}"
 
           DOCKER_CONTEXT="./src/$SERVICE"
@@ -154,7 +154,7 @@ jobs:
         run: |
           SERVICE=${{ matrix.service }}
           ENVIRONMENT=${{ github.event.inputs.environment }}
-          IMAGE_TAG=$(echo "${{ github.sha }}" | cut -c1-7)
+          IMAGE_TAG=$(echo "${{ github.sha }}")
           ECR_REPO="${{ env.ECR_REGISTRY }}/${SERVICE}"
 
           docker push $ECR_REPO:$IMAGE_TAG
