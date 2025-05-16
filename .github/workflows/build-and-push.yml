@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: filter
-        uses: dorny/paths-filter@v2
+        uses: dorny/paths-filter@v3
         with:
           filters: |
             adservice:
@@ -53,6 +53,21 @@ jobs:
               - 'src/shippingservice/**'
             shoppingassistantservice:
               - 'src/shoppingassistantservice/**'
+              
+      - name: Debug filter outputs
+        run: |
+          echo "adservice: ${{ steps.filter.outputs.adservice }}"
+          echo "cartservice: ${{ steps.filter.outputs.cartservice }}"
+          echo "checkoutservice: ${{ steps.filter.outputs.checkoutservice }}"
+          echo "currencyservice: ${{ steps.filter.outputs.currencyservice }}"
+          echo "emailservice: ${{ steps.filter.outputs.emailservice }}"
+          echo "frontend: ${{ steps.filter.outputs.frontend }}"
+          echo "loadgenerator: ${{ steps.filter.outputs.loadgenerator }}"
+          echo "paymentservice: ${{ steps.filter.outputs.paymentservice }}"
+          echo "productcatalogservice: ${{ steps.filter.outputs.productcatalogservice }}"
+          echo "recommendationservice: ${{ steps.filter.outputs.recommendationservice }}"
+          echo "shippingservice: ${{ steps.filter.outputs.shippingservice }}"
+          echo "shoppingassistantservice: ${{ steps.filter.outputs.shoppingassistantservice }}"
 
       - name: Set changed services output
         id: set-services
