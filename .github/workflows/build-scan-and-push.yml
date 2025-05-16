@@ -203,8 +203,10 @@ jobs:
   scan-ecr-images:
     name: Scan ECR Images with Snyk
     runs-on: ubuntu-latest
-    needs: build-and-push
-    if: ${{ needs.build-and-push.result == 'success' }}
+    needs:
+      - build-and-push
+      - detect-changes-in-service
+    if: ${{ needs.detect-changes-in-service.outputs.services_changed != '[]' }}
     strategy:
       matrix:
         service: ${{ fromJson(needs.detect-changes-in-service.outputs.services_changed) }}
