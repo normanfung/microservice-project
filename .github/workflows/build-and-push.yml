@@ -95,7 +95,7 @@ jobs:
             fi
           done
 
-          changed_json="$(printf "[%s]" "$(IFS=,; echo "${changed[*]}")")"
+          changed_json=$(printf '%s\n' "${changed[@]}" | jq -R . | jq -s .)
           echo "Changed services: $changed_json"
           echo "services_changed=$changed_json" >> $GITHUB_OUTPUT
     
