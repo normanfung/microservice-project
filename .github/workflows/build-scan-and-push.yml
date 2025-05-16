@@ -154,7 +154,7 @@ jobs:
         run: |
           SERVICE=${{ matrix.service }}
           ENVIRONMENT=${{ github.event.inputs.environment }}
-          IMAGE_TAG=$SHORT_SHA
+          IMAGE_TAG=${{ env.SHORT_SHA }}
           ECR_REPO="${{ env.ECR_REGISTRY }}/${SERVICE}"
 
           DOCKER_CONTEXT="./src/$SERVICE"
@@ -169,7 +169,7 @@ jobs:
       - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: ${{ env.ECR_REGISTRY }}/${{ matrix.service }}:$SHORT_SHA
+          image-ref: ${{ env.ECR_REGISTRY }}/${{ matrix.service }}:${{ env.SHORT_SHA }}
           format: table
           severity: CRITICAL,HIGH
 
@@ -177,7 +177,7 @@ jobs:
         run: |
           SERVICE=${{ matrix.service }}
           ENVIRONMENT=${{ github.event.inputs.environment }}
-          IMAGE_TAG=$SHORT_SHA
+          IMAGE_TAG=${{ env.SHORT_SHA }}
           ECR_REPO="${{ env.ECR_REGISTRY }}/${SERVICE}"
 
           docker push $ECR_REPO:$IMAGE_TAG
