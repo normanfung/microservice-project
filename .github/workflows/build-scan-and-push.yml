@@ -129,9 +129,6 @@ jobs:
         matrix:
             service: ${{ fromJson(needs.detect-changes-in-service.outputs.services_changed) }}
 
-    env:
-      SHORT_SHA: ${{ github.sha.substring(0, 7) }}
-     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -149,6 +146,9 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Set short SHA environment variable
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
       - name: Build, Tag image
         run: |
@@ -183,4 +183,3 @@ jobs:
           docker push $ECR_REPO:$IMAGE_TAG
           docker tag $ECR_REPO:$IMAGE_TAG $ECR_REPO:$ENVIRONMENT
           docker push $ECR_REPO:$ENVIRONMENT
-      
