@@ -73,49 +73,33 @@ jobs:
 
       - name: Set changed services output
         id: set-services
-        shell: bash
-        env:
-          FILTER_ADSERVICE: ${{ steps.filter.outputs.adservice }}
-          FILTER_CARTSERVICE: ${{ steps.filter.outputs.cartservice }}
-          FILTER_CHECKOUTSERVICE: ${{ steps.filter.outputs.checkoutservice }}
-          FILTER_CURRENCYSERVICE: ${{ steps.filter.outputs.currencyservice }}
-          FILTER_EMAILSERVICE: ${{ steps.filter.outputs.emailservice }}
-          FILTER_FRONTEND: ${{ steps.filter.outputs.frontend }}
-          FILTER_LOADGENERATOR: ${{ steps.filter.outputs.loadgenerator }}
-          FILTER_PAYMENTSERVICE: ${{ steps.filter.outputs.paymentservice }}
-          FILTER_PRODUCTCATALOGSERVICE: ${{ steps.filter.outputs.productcatalogservice }}
-          FILTER_RECOMMENDATIONSERVICE: ${{ steps.filter.outputs.recommendationservice }}
-          FILTER_SHIPPINGSERVICE: ${{ steps.filter.outputs.shippingservice }}
-          FILTER_SHOPPINGASSISTANTSERVICE: ${{ steps.filter.outputs.shoppingassistantservice }}
+        shell: python
         run: |
-          services=(
-            "adservice"
-            "cartservice"
-            "checkoutservice"
-            "currencyservice"
-            "emailservice"
-            "frontend"
-            "loadgenerator"
-            "paymentservice"
-            "productcatalogservice"
-            "recommendationservice"
-            "shippingservice"
-            "shoppingassistantservice"
-          )
+          import os
+          import json
 
-          changed=()
-          for svc in "${services[@]}"; do
-            key="FILTER_$(echo "$svc" | tr '[:lower:]' '[:upper:]')"
-            changed_flag="${!key}"
-            if [ "$changed_flag" = "true" ]; then
-              changed+=("$svc")
-            fi
-          done
+          services = {
+              "adservice": "${{ steps.filter.outputs.adservice }}",
+              "cartservice": "${{ steps.filter.outputs.cartservice }}",
+              "checkoutservice": "${{ steps.filter.outputs.checkoutservice }}",
+              "currencyservice": "${{ steps.filter.outputs.currencyservice }}",
+              "emailservice": "${{ steps.filter.outputs.emailservice }}",
+              "frontend": "${{ steps.filter.outputs.frontend }}",
+              "loadgenerator": "${{ steps.filter.outputs.loadgenerator }}",
+              "paymentservice": "${{ steps.filter.outputs.paymentservice }}",
+              "productcatalogservice": "${{ steps.filter.outputs.productcatalogservice }}",
+              "recommendationservice": "${{ steps.filter.outputs.recommendationservice }}",
+              "shippingservice": "${{ steps.filter.outputs.shippingservice }}",
+              "shoppingassistantservice": "${{ steps.filter.outputs.shoppingassistantservice }}"
+          }
 
-          changed_json=$(printf '%s\n' "${changed[@]}" | jq -R . | jq -cs .)
+          changed = [svc for svc, flag in services.items() if flag.strip().lower() == "true"]
+          changed_json = json.dumps(changed)
+          print(f"Changed services: {changed_json}")
 
-          echo "Changed services: $changed_json"
-          echo "services_changed=$changed_json" >> "$GITHUB_OUTPUT"
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              print(f"services_changed={changed_json}", file=fh)
+
     
   build-and-push:
     name: Build and Push Docker Images
