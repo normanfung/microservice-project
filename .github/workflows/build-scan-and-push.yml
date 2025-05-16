@@ -166,19 +166,27 @@ jobs:
 
           docker build -t $ECR_REPO:$IMAGE_TAG -f $DOCKERFILE_PATH $DOCKER_CONTEXT
 
-      - name: Scan Docker image with Trivy
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: ${{ env.ECR_REGISTRY }}/${{ matrix.service }}:${{ env.SHORT_SHA }}
-          format: table
-          output: trivy-report-${{ matrix.service }}.txt
-          severity: CRITICAL,HIGH
+      - name: Install Snyk CLI
+        run: |
+          curl -sL https://static.snyk.io/cli/latest/snyk-linux -o snyk
+          chmod +x snyk
+          sudo mv snyk /usr/local/bin/
 
-      - name: Upload Trivy Scan Report
+      - name: Scan Docker image with Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          SERVICE=${{ matrix.service }}
+          IMAGE_TAG=${{ env.SHORT_SHA }}
+          IMAGE_URI="${{ env.ECR_REGISTRY }}/${SERVICE}:${IMAGE_TAG}"
+
+          snyk container test $IMAGE_URI --json > snyk-report-${SERVICE}.json || true
+
+      - name: Upload Snyk Scan Report
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-scan-${{ matrix.service }}
-          path: trivy-report-${{ matrix.service }}.txt
+          name: snyk-scan-${{ matrix.service }}
+          path: snyk-report-${{ matrix.service }}.json
 
       - name: Push Docker images
         run: |
