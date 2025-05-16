@@ -91,7 +91,7 @@ jobs:
             key="FILTER_$(echo "$svc" | tr '[:lower:]' '[:upper:]')"
             changed_flag="${!key}"
             if [ "$changed_flag" = "true" ]; then
-              changed+=("\"$svc\"")
+              changed+=("$svc")
             fi
           done
 
