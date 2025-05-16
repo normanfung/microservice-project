@@ -124,6 +124,7 @@ jobs:
     name: Build and Push Docker Images
     runs-on: ubuntu-latest
     needs: detect-changes-in-service
+    if: ${{needs.detect-changes-in-service.outputs.services_changed != '[]' }}
     strategy:
         matrix:
             service: ${{ fromJson(needs.detect-changes-in-service.outputs.services_changed) }}
