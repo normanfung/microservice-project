@@ -13,7 +13,7 @@ on:
           - stage
           - main
       full_build:
-        description: 'Build all services regardless of changes'
+        description: 'Build all services'
         required: false
         default: 'false'
         type: choice
@@ -36,6 +36,7 @@ jobs:
         with:
           fetch-depth: 0
       - id: filter
+        if: ${{ github.event.inputs.full_build != 'true' }}
         uses: dorny/paths-filter@v3
         with:
           filters: |
