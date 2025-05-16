@@ -101,7 +101,7 @@ jobs:
               print(f"services_changed={changed_json}", file=fh)
 
     
-  build-and-push:
+  build-scan-and-push:
     name: Build and Push Docker Images
     runs-on: ubuntu-latest
     needs: detect-changes
@@ -127,7 +127,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, Tag, and Push Docker image
+      - name: Build, Tag image
         run: |
           SERVICE=${{ matrix.service }}
           ENVIRONMENT=${{ github.event.inputs.environment }}
@@ -136,17 +136,28 @@ jobs:
 
           DOCKER_CONTEXT="./src/$SERVICE"
           DOCKERFILE_PATH="$DOCKER_CONTEXT/Dockerfile"
-
           if [ "$SERVICE" = "cartservice" ]; then
             DOCKER_CONTEXT="./src/$SERVICE/src"
-            DOCKERFILE_PATH="./src/$SERVICE/src/Dockerfile"
+            DOCKERFILE_PATH="$DOCKER_CONTEXT/Dockerfile"
           fi
 
           docker build -t $ECR_REPO:$IMAGE_TAG -f $DOCKERFILE_PATH $DOCKER_CONTEXT
-          echo "Pushing image with tag $IMAGE_TAG (SHA)..."
-          docker push $ECR_REPO:$IMAGE_TAG
 
+      - name: Scan Docker image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.ECR_REGISTRY }}/${{ matrix.service }}:${{ github.sha }}
+          format: table
+          severity: CRITICAL,HIGH
+
+      - name: Push Docker images
+        run: |
+          SERVICE=${{ matrix.service }}
+          ENVIRONMENT=${{ github.event.inputs.environment }}
+          IMAGE_TAG=$(echo "${{ github.sha }}" | cut -c1-7)
+          ECR_REPO="${{ env.ECR_REGISTRY }}/${SERVICE}"
+
+          docker push $ECR_REPO:$IMAGE_TAG
           docker tag $ECR_REPO:$IMAGE_TAG $ECR_REPO:$ENVIRONMENT
-          echo "Pushing image with tag $ENVIRONMENT..."
           docker push $ECR_REPO:$ENVIRONMENT
       
