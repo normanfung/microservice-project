@@ -166,12 +166,23 @@ jobs:
 
           docker build -t $ECR_REPO:$IMAGE_TAG -f $DOCKERFILE_PATH $DOCKER_CONTEXT
 
-      - name: Scan Docker image with Trivy
-        uses: aquasecurity/trivy-action@0.28.0
+      - name: Scan Docker image with Trivy (HTML Report)
+        run: |
+          IMAGE=${{ env.ECR_REGISTRY }}/${{ matrix.service }}:${{ env.SHORT_SHA }}
+          OUTPUT="trivy-report-${{ matrix.service }}.html"
+
+          trivy image \
+            --format template \
+            --template "@contrib/html.tpl" \
+            --severity CRITICAL,HIGH \
+            -o "$OUTPUT" \
+            "$IMAGE"
+            
+      - name: Upload Trivy HTML report
+        uses: actions/upload-artifact@v4
         with:
-          image-ref: ${{ env.ECR_REGISTRY }}/${{ matrix.service }}:${{ env.SHORT_SHA }}
-          format: table
-          severity: CRITICAL,HIGH
+          name: trivy-report-${{ matrix.service }}
+          path: trivy-report-${{ matrix.service }}.html
 
       - name: Push Docker images
         run: |
