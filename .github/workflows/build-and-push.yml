@@ -95,9 +95,10 @@ jobs:
             fi
           done
 
-          changed_json=$(printf '%s\n' "${changed[@]}" | jq -R . | jq -s .)
+          changed_json=$(printf '%s\n' "${changed[@]}" | jq -R . | jq -cs .)
+
           echo "Changed services: $changed_json"
-          echo "services_changed=$changed_json" >> $GITHUB_OUTPUT
+          echo "services_changed=$changed_json" >> "$GITHUB_OUTPUT"
     
   build-and-push:
     name: Build and Push Docker Images
