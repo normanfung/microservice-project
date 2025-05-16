@@ -181,6 +181,7 @@ jobs:
           IMAGE_URI="${{ env.ECR_REGISTRY }}/${SERVICE}:${IMAGE_TAG}"
 
           snyk container test $IMAGE_URI --json > snyk-report-${SERVICE}.json || true
+          snyk container monitor $IMAGE_URI --project-name=${SERVICE}-${{ github.event.inputs.environment }}
 
       - name: Upload Snyk Scan Report
         uses: actions/upload-artifact@v4
