@@ -22,7 +22,7 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      services_changed: ${{ steps.filter.outputs.services_changed }}
+      services_changed: ${{ steps.set-services.outputs.services_changed }}
     steps:
       - uses: actions/checkout@v4
       - id: filter
@@ -55,20 +55,54 @@ jobs:
               - 'src/shoppingassistantservice/**'
 
       - name: Set changed services output
+        id: set-services
+        shell: bash
+        env:
+          FILTER_ADSERVICE: ${{ steps.filter.outputs.adservice }}
+          FILTER_CARTSERVICE: ${{ steps.filter.outputs.cartservice }}
+          FILTER_CHECKOUTSERVICE: ${{ steps.filter.outputs.checkoutservice }}
+          FILTER_CURRENCYSERVICE: ${{ steps.filter.outputs.currencyservice }}
+          FILTER_EMAILSERVICE: ${{ steps.filter.outputs.emailservice }}
+          FILTER_FRONTEND: ${{ steps.filter.outputs.frontend }}
+          FILTER_LOADGENERATOR: ${{ steps.filter.outputs.loadgenerator }}
+          FILTER_PAYMENTSERVICE: ${{ steps.filter.outputs.paymentservice }}
+          FILTER_PRODUCTCATALOGSERVICE: ${{ steps.filter.outputs.productcatalogservice }}
+          FILTER_RECOMMENDATIONSERVICE: ${{ steps.filter.outputs.recommendationservice }}
+          FILTER_SHIPPINGSERVICE: ${{ steps.filter.outputs.shippingservice }}
+          FILTER_SHOPPINGASSISTANTSERVICE: ${{ steps.filter.outputs.shoppingassistantservice }}
         run: |
-          SERVICES=()
-          for svc in adservice cartservice checkoutservice currencyservice emailservice frontend loadgenerator paymentservice productcatalogservice recommendationservice shippingservice shoppingassistantservice; do
-            if [[ "${{ steps.filter.outputs[$svc] }}" == 'true' ]]; then
-              SERVICES+=("\"$svc\"")
+          services=(
+            "adservice"
+            "cartservice"
+            "checkoutservice"
+            "currencyservice"
+            "emailservice"
+            "frontend"
+            "loadgenerator"
+            "paymentservice"
+            "productcatalogservice"
+            "recommendationservice"
+            "shippingservice"
+            "shoppingassistantservice"
+          )
+
+          changed=()
+          for svc in "${services[@]}"; do
+            key="FILTER_$(echo "$svc" | tr '[:lower:]' '[:upper:]')"
+            changed_flag="${!key}"
+            if [ "$changed_flag" = "true" ]; then
+              changed+=("\"$svc\"")
             fi
           done
-          echo "::set-output name=services_changed::[$(IFS=,; echo "${SERVICES[*]}")]"
-        shell: bash
 
+          changed_json="[${changed[*]}]"
+          echo "Changed services: $changed_json"
+          echo "services_changed=$changed_json" >> $GITHUB_OUTPUT
+    
   build-and-push:
     name: Build and Push Docker Images
     runs-on: ubuntu-latest
-
+    needs: detect-changes
     strategy:
         matrix:
             service: ${{ fromJson(needs.detect-changes.outputs.services_changed) }}
@@ -110,3 +144,4 @@ jobs:
           docker tag $ECR_REPO:$IMAGE_TAG $ECR_REPO:$ENVIRONMENT
           echo "Pushing image with tag $ENVIRONMENT..."
           docker push $ECR_REPO:$ENVIRONMENT
+      
