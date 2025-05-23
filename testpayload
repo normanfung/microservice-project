@@ -1,0 +1,32 @@
+[
+  {
+    "id": { "S": "1YMWWN1N4O" },
+    "name": { "S": "Watch" },
+    "description": { "S": "This gold-tone stainless steel watch will work with most of your outfits." },
+    "picture": { "S": "/static/img/products/watch.jpg" },
+    "price_usd_currency_code": { "S": "USD" },
+    "price_usd_units": { "N": "109" },
+    "price_usd_nanos": { "N": "990000000" },
+    "categories": { "L": [ { "S": "accessories" } ] }
+  },
+  {
+    "id": { "S": "L9ECAV7KIM" },
+    "name": { "S": "Loafers" },
+    "description": { "S": "A neat addition to your summer wardrobe." },
+    "picture": { "S": "/static/img/products/loafers.jpg" },
+    "price_usd_currency_code": { "S": "USD" },
+    "price_usd_units": { "N": "89" },
+    "price_usd_nanos": { "N": "990000000" },
+    "categories": { "L": [ { "S": "footwear" } ] }
+  },
+  {
+    "id": { "S": "2ZYFJ3GM2N" },
+    "name": { "S": "Hairdryer" },
+    "description": { "S": "This lightweight hairdryer has 3 heat and speed settings. It's perfect for travel." },
+    "picture": { "S": "/static/img/products/hairdryer.jpg" },
+    "price_usd_currency_code": { "S": "USD" },
+    "price_usd_units": { "N": "24" },
+    "price_usd_nanos": { "N": "990000000" },
+    "categories": { "L": [ { "S": "hair" }, { "S": "beauty" } ] }
+  }
+]
